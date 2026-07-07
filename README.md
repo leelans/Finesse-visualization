@@ -6,16 +6,22 @@
 [![Python](https://img.shields.io/badge/python-3.10-green)](https://www.python.org/)
 
 This project is built upon [Finesse 3](https://finesse.ifosim.org/), which is licensed under GPLv3 ([repo](https://gitlab.com/ifosim/finesse/finesse3)).
-
+Code generated with LLM assistance (DeepSeek, Claude) under human direction.
 ---
 
 ## Quick Start
 
-**Prerequisites:** Windows 10/11, [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
+**Prerequisites:** Windows 10/11, [Miniconda](https://docs.conda.io/en/latest/miniconda.html)/[Anaconda](https://www.anaconda.com/download).
 
 ```bash
+#Windows
 setup.bat    # Create conda env "finesse_sim" and install dependencies (one time)
 run.bat      # Launch — browser opens at http://localhost:5000
+```
+```bash
+#MacOS
+bash setup.sh    # Create conda env "finesse_sim" and install dependencies (one time)
+bash run.sh      # Launch — browser opens at http://localhost:5000
 ```
 
 ---
