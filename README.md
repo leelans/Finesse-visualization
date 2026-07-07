@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/python-3.10-green)](https://www.python.org/)
 
 This project is built upon [Finesse 3](https://finesse.ifosim.org/), which is licensed under GPLv3 ([repo](https://gitlab.com/ifosim/finesse/finesse3)).
-Code generated with LLM assistance (DeepSeek, Claude) under human direction.
+Code generated with LLM assistance (DeepSeek, Workbuddy) under human direction.
 
 ---
 
