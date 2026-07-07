@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Jupyter - Optics Sim</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#1a1a2e;--card:#16213e;--border:#0f3460;--accent:#e94560;--text:#e0e0e0;--muted:#7f8c8d}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column}
+header{background:var(--card);padding:8px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+h1{font-size:14px;color:var(--accent)}
+button{padding:5px 12px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:4px;cursor:pointer;font-size:11px;}
+button:hover{background:var(--border)}
+button.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.main{display:flex;flex:1;overflow:hidden}
+.col-left{flex:1;display:flex;flex-direction:column;padding:10px;overflow-y:auto;min-width:0}
+.cells{margin-bottom:10px}
+.cell{border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden}
+.cell.active{border-color:var(--accent)}
+.cell-toolbar{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--card);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.cell-toolbar .cell-num{font-size:10px;color:var(--muted);margin-right:auto}
+.cell-toolbar button{font-size:10px;padding:3px 8px}
+.cell-toolbar button.run{background:#27ae60;border-color:#27ae60;color:#fff}
+.cell textarea{width:100%;background:var(--bg);border:none;color:#2ecc71;font-family:Consolas,monospace;font-size:12px;padding:8px;resize:vertical;min-height:40px;outline:none;line-height:1.4}
+.cell .cell-output{font-family:Consolas,monospace;font-size:12px;padding:8px;background:#0d1117;color:var(--text);white-space:pre-wrap;max-height:200px;overflow-y:auto;border-top:1px solid var(--border);display:none}
+.cell .cell-output.show{display:block}
+
+.col-right{width:340px;display:flex;flex-direction:column;padding:10px 10px 10px 0;min-width:120px;flex-shrink:0}
+.col-right .output{flex:3;background:var(--bg);border:1px solid var(--border);padding:10px;font-family:Consolas,monospace;font-size:12px;color:var(--text);overflow-y:auto;border-radius:4px;white-space:pre-wrap;margin-bottom:6px}
+.col-right .chart-wrap{flex:1;min-height:80px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.vars{display:flex;flex-wrap:wrap;gap:3px}
+.vars span{cursor:pointer;font-size:10px;background:var(--card);padding:1px 6px;border-radius:3px;border:1px solid var(--border);color:var(--accent)}
+.vars span:hover{background:var(--border)}
+.status{font-size:10px;color:var(--muted);margin-left:auto}
+.divider{width:6px;cursor:col-resize;background:var(--border);flex-shrink:0;transition:background .1s}
+.divider:hover{background:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Jupyter</h1>
+  <button class="accent" onclick="runAll()">▸ Run All</button>
+  <button onclick="quickRun('print(model.beam_trace())')">🔍 Trace</button>
+  <button onclick="quickRun('print(model.mismatches_table())')">📊 Mismatch</button>
+  <button onclick="openPropagateDialog()">📡 Propagate</button>
+  <button onclick="refreshData()">↻ Refresh</button>
+  <span class="status" id="status">Ready</span>
+</header>
+<div class="main">
+  <div class="col-left" id="cell-container">
+  <div class="toolbar">
+    <div class="vars" id="vars"><span style="color:var(--muted)">No data</span></div>
+    <button onclick="openInsertParam()" style="font-size:10px;padding:3px 8px;border:1px dashed var(--border);background:transparent;color:var(--accent);border-radius:3px;cursor:pointer">+ Insert Param</button>
+  </div>
+    <div class="cells" id="cells"></div>
+    <button onclick="addCell(-1)" style="width:100%;border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:11px;padding:8px;border-radius:6px;cursor:pointer">+  Add Cell</button>
+  </div>
+  <div class="divider" id="divider"></div>
+  <div class="col-right">
+    <div class="output" id="global-output">Output will appear here...</div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  </div>
+</div>
+
+<script>
+let chart = null;
+let storedData = {};
+let cellCounter = 0;
+let cells = [];
+
+function refreshData(){
+  try{ storedData = JSON.parse(localStorage.getItem('optics_data') || '{}'); }catch(e){ storedData = {}; }
+  updateVars();
+}
+function updateVars(){
+  const vars = document.getElementById('vars');
+  const keys = Object.keys(storedData);
+  if(keys.length === 0){
+    vars.innerHTML = '<span style="color:var(--muted)">No data</span>';
+    return;
+  }
+  vars.innerHTML = keys.map(k => '<span onclick="insertVarAtActive(\'' + k + '\')">' + k + '</span>').join('');
+  for(const k of keys){ try{ window[k] = storedData[k]; }catch(e){} }
+}
+
+function insertVarAtActive(name){
+  var ta = document.querySelector('.cell.active textarea');
+  if(!ta) return;
+  var pos = ta.selectionStart;
+  ta.value = ta.value.substring(0, pos) + name + ta.value.substring(pos);
+  ta.focus(); ta.setSelectionRange(pos + name.length, pos + name.length);
+}
+
+function createCell(initialCode, autoRun){
+  var id = ++cellCounter;
+  var cell = {id: id};
+  var el = document.createElement('div');
+  el.className = 'cell';
+  el.id = 'cell-' + id;
+  el.innerHTML = '<div class="cell-toolbar">'+
+    '<span class="cell-num">In [' + id + ']:</span>'+
+    '<button class="run" onclick="runCell(' + id + ')">▸</button>'+
+    '<button onclick="addCell(' + id + ')">+ Below</button>'+
+    '<button onclick="deleteCell(' + id + ')">×</button>'+
+    '</div>'+
+    '<textarea onfocus="activateCell(' + id + ')" onkeydown="cellKeydown(' + id + ',event)"'+
+    ' placeholder="# Python code..."></textarea>'+
+    '<div class="cell-output" id="output-' + id + '"></div>';
+  cells.push(cell);
+  return el;
+}
+
+function ensureOneCell(){
+  if(cells.length === 0) addCell(-1, '', false);
+}
+
+function addCell(afterId, initialCode, autoRun){
+  var el = createCell(initialCode, autoRun);
+  var ta = el.querySelector('textarea');
+  if(initialCode) ta.value = initialCode;
+  if(afterId >= 0){
+    var afterEl = document.getElementById('cell-' + afterId);
+    if(afterEl) afterEl.after(el);
+    else document.getElementById('cells').appendChild(el);
+  } else {
+    document.getElementById('cells').appendChild(el);
+  }
+  var newId = cells[cells.length-1].id;
+  activateCell(newId);
+  ta.focus();
+  return newId;
+}
+
+function deleteCell(id){
+  if(cells.length <= 1) return; // keep at least one
+  var el = document.getElementById('cell-' + id);
+  if(el) el.remove();
+  cells = cells.filter(function(c){ return c.id !== id; });
+  // activate next or prev cell
+  var remaining = document.querySelectorAll('.cell');
+  if(remaining.length > 0) remaining[remaining.length-1].classList.add('active');
+}
+
+function activateCell(id){
+  document.querySelectorAll('.cell').forEach(function(el){ el.classList.remove('active'); });
+  var el = document.getElementById('cell-' + id);
+  if(el) el.classList.add('active');
+}
+
+function cellKeydown(id, e){
+  if(e.key === 'Enter' && e.shiftKey){
+    e.preventDefault();
+    addCell(id);
+  }
+}
+
+async function runCell(id){
+  var el = document.getElementById('cell-' + id);
+  var ta = el.querySelector('textarea');
+  var out = el.querySelector('.cell-output');
+  var code = ta.value.trim();
+  if(!code) return;
+  out.textContent = '';
+  out.classList.add('show');
+  out.textContent = 'Running...';
+  document.getElementById('status').textContent = 'Running In[' + id + ']...';
+  try{
+    var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+    var r = await fetch('/api/jupyter', {method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code, data:storedData,
+        components:modelData.components||[], connections:modelData.connections||[],
+        vars:modelData.vars||[], boxes:modelData.boxes||[]})});
+    var d = await r.json();
+    if(d.error){ out.textContent = 'Error: ' + d.error; out.style.color = '#e74c3c'; }
+    else { out.textContent = d.output || '(no output)'; out.style.color = ''; }
+    document.getElementById('status').textContent = 'In[' + id + '] done';
+  }catch(e){
+    out.textContent = 'Error: ' + e.message;
+    out.style.color = '#e74c3c';
+    document.getElementById('status').textContent = 'Error';
+  }
+}
+
+async function runAll(){
+  for(var i=0;i<cells.length;i++){
+    await runCell(cells[i].id);
+  }
+}
+
+async function quickRun(py, label){
+  document.getElementById('status').textContent = label + '...';
+  document.getElementById('global-output').textContent = 'Running: ' + label + '...';
+  try{
+    var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+    var r = await fetch('/api/jupyter', {method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code:py, data:storedData,
+        components:modelData.components||[], connections:modelData.connections||[],
+        vars:modelData.vars||[], boxes:modelData.boxes||[]})});
+    var d = await r.json();
+    document.getElementById('global-output').textContent = d.output || d.error || '(no output)';
+  }catch(e){
+    document.getElementById('global-output').textContent = 'Error: ' + e.message;
+  }
+  document.getElementById('status').textContent = label + ' done';
+}
+
+function openPropagateDialog(){
+  var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+  var comps = (modelData.components || []).filter(function(c){ return !c.hidden; });
+  var conns = modelData.connections || [];
+  if(comps.length < 2){ document.getElementById('status').textContent = 'Need >=2 components'; return; }
+  var connectedPorts = {};
+  comps.forEach(function(c){
+    connectedPorts[c.id] = [];
+    conns.forEach(function(cn){
+      if(cn.from === c.id && connectedPorts[c.id].indexOf(cn.fromPort) < 0) connectedPorts[c.id].push(cn.fromPort);
+      if(cn.to === c.id && connectedPorts[c.id].indexOf(cn.toPort) < 0) connectedPorts[c.id].push(cn.toPort);
+    });
+  });
+  window._propConnected = connectedPorts;
+  var opts = comps.map(function(c){ return '<option value="'+c.id+'">'+c.id+' ('+c.type+')</option>'; }).join('');
+  var old = document.getElementById('prop-dlg');
+  if(old) old.parentElement.removeChild(old);
+  var dlg = document.createElement('div');
+  dlg.id = 'prop-dlg';
+  dlg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  dlg.innerHTML = '<div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;min-width:340px;box-shadow:0 8px 30px rgba(0,0,0,0.4)">'+
+    '<div style="font-size:14px;font-weight:500;margin-bottom:14px">Beam Propagate</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
+      '<span style="font-size:11px;color:var(--muted)">From:</span>'+
+      '<select id="prop-from-comp" onchange="updatePropPort(this,true)" style="flex:1;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px">'+opts+'</select>'+
+      '<select id="prop-from-port" style="width:50px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px"></select>'+
+      '<span style="font-size:10px;color:var(--accent)">.o</span>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">'+
+      '<span style="font-size:11px;color:var(--muted)">To:</span>'+
+      '<select id="prop-to-comp" onchange="updatePropPort(this,false)" style="flex:1;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px">'+opts+'</select>'+
+      '<select id="prop-to-port" style="width:50px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px"></select>'+
+      '<span style="font-size:10px;color:var(--accent)">.i</span>'+
+    '</div>'+
+    '<div style="display:flex;gap:6px;justify-content:flex-end">'+
+      '<button onclick="closePropDlg()" style="font-size:11px;padding:5px 12px">Cancel</button>'+
+      '<button onclick="runPropagate()" class="accent" style="font-size:11px;padding:5px 12px">Insert</button>'+
+    '</div></div>';
+  document.body.appendChild(dlg);
+  updatePropPort(document.getElementById('prop-from-comp'), true);
+  updatePropPort(document.getElementById('prop-to-comp'), false);
+  dlg.onclick = function(e){ if(e.target === dlg) closePropDlg(); };
+}
+function closePropDlg(){ var dlg = document.getElementById('prop-dlg'); if(dlg) dlg.parentElement.removeChild(dlg); }
+function updatePropPort(sel, isFrom){
+  var cid = sel.value;
+  var portSel = isFrom ? document.getElementById('prop-from-port') : document.getElementById('prop-to-port');
+  portSel.innerHTML = '';
+  var ports = window._propConnected && window._propConnected[cid] ? window._propConnected[cid] : [];
+  ports.forEach(function(p){ portSel.innerHTML += '<option value="'+p+'">'+p+'</option>'; });
+  if(ports.length === 0 && cid){
+    var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+    var comp = (modelData.components||[]).find(function(c){ return c.id===cid; });
+    if(comp && comp.ports) comp.ports.forEach(function(p){ portSel.innerHTML += '<option value="'+p.name+'">'+p.name+'</option>'; });
+  }
+}
+function runPropagate(){
+  var fromComp = document.getElementById('prop-from-comp').value;
+  var fromPort = document.getElementById('prop-from-port').value;
+  var toComp = document.getElementById('prop-to-comp').value;
+  var toPort = document.getElementById('prop-to-port').value;
+  var code = 'print(model.propagate_beam(from_node="'+fromComp+'.'+fromPort+'.o", to_node="'+toComp+'.'+toPort+'.i"))';
+  // Insert at cursor in active cell, or append to last cell
+  var ta = document.querySelector('.cell.active textarea') || document.querySelector('.cell:last-of-type textarea');
+  if(ta){
+    var pos = ta.selectionStart;
+    ta.value = ta.value.substring(0, pos) + code + '\n' + ta.value.substring(pos);
+    ta.focus(); ta.setSelectionRange(pos + code.length + 1, pos + code.length + 1);
+  }
+  closePropDlg();
+}
+
+function openInsertParam(){
+  var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+  var comps = (modelData.components || []).filter(function(c){ return !c.hidden; });
+  if(comps.length === 0){ document.getElementById('status').textContent = 'No model loaded'; return; }
+  var typeParams = {
+    laser: ['P','f','phase'], mirror: ['R','T','phi','L','Rc','Rcx','Rcy','xbeta','ybeta'],
+    beamsplitter: ['R','T','phi','L','alpha','Rc','Rcx','Rcy','xbeta','ybeta'],
+    lens: ['f'], modulator: ['f','midx','phase','order'], isolator: ['S'],
+    photodetector: ['f'], ccd: ['xlim','ylim','npts'], gauss: ['w0','z','w0x','w0y','zx','zy']
+  };
+  var compOpts = comps.map(function(c){
+    return '<option value="'+c.id+'">'+c.id+' ('+c.type+')</option>';
+  }).join('');
+  var old = document.getElementById('ins-dlg');
+  if(old) old.parentElement.removeChild(old);
+  var dlg = document.createElement('div');
+  dlg.id = 'ins-dlg';
+  dlg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  dlg.innerHTML = '<div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;min-width:360px;box-shadow:0 8px 30px rgba(0,0,0,0.4)">'+
+    '<div style="font-size:14px;font-weight:500;margin-bottom:14px">Insert Parameter</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
+      '<span style="font-size:11px;color:var(--muted);min-width:40px">Comp:</span>'+
+      '<select id="ins-comp" onchange="updateInsParams()" style="flex:1;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px">'+compOpts+'</select>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
+      '<span style="font-size:11px;color:var(--muted);min-width:40px">Param:</span>'+
+      '<select id="ins-param" onchange="updateInsPreview()" style="flex:1;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px"></select>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
+      '<span style="font-size:11px;color:var(--muted);min-width:40px">Port:</span>'+
+      '<select id="ins-suffix" onchange="updateInsPreview()" style="flex:1;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:11px;border-radius:3px">'+
+        '<option value="">(none)</option>'+
+        '<option value=".p1">p1</option><option value=".p2">p2</option><option value=".p3">p3</option><option value=".p4">p4</option>'+
+        '<option value=".p1.o">p1.o</option><option value=".p2.o">p2.o</option><option value=".p3.o">p3.o</option><option value=".p4.o">p4.o</option>'+
+        '<option value=".p1.i">p1.i</option><option value=".p2.i">p2.i</option><option value=".p3.i">p3.i</option><option value=".p4.i">p4.i</option>'+
+      '</select>'+
+    '</div>'+
+    '<div style="font-size:11px;padding:6px 10px;background:var(--card);border-radius:4px;margin-bottom:10px;font-family:Consolas,monospace;color:var(--accent)" id="ins-preview"></div>'+
+    '<div style="display:flex;gap:6px;justify-content:flex-end">'+
+      '<button onclick="closeInsDlg()" style="font-size:11px;padding:5px 12px">Cancel</button>'+
+      '<button onclick="doInsertParam()" class="accent" style="font-size:11px;padding:5px 12px">Insert</button>'+
+    '</div></div>';
+  document.body.appendChild(dlg);
+  window._typeParams = typeParams;
+  updateInsParams();
+  dlg.onclick = function(e){ if(e.target === dlg) closeInsDlg(); };
+}
+function closeInsDlg(){
+  var dlg = document.getElementById('ins-dlg');
+  if(dlg) dlg.parentElement.removeChild(dlg);
+}
+function updateInsParams(){
+  var modelData = JSON.parse(localStorage.getItem('optics_model') || '{}');
+  var sel = document.getElementById('ins-comp');
+  var cid = sel.value;
+  var comp = (modelData.components||[]).find(function(c){ return c.id===cid; });
+  if(!comp) return;
+  var params = (window._typeParams[comp.type] || []).slice();
+  if(comp.usedParams){
+    comp.usedParams.forEach(function(p){
+      if(params.indexOf(p) < 0) params.push(p);
+    });
+  }
+  var psel = document.getElementById('ins-param');
+  psel.innerHTML = params.map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
+  updateInsPreview();
+}
+function updateInsPreview(){
+  var cid = document.getElementById('ins-comp').value;
+  var param = document.getElementById('ins-param').value;
+  var suffix = document.getElementById('ins-suffix').value;
+  document.getElementById('ins-preview').textContent = cid + '.' + param + suffix;
+}
+function doInsertParam(){
+  var text = document.getElementById('ins-preview').textContent;
+  var ta = document.querySelector('.cell.active textarea') || document.querySelector('.cell:last-of-type textarea');
+  if(ta){
+    var pos = ta.selectionStart;
+    ta.value = ta.value.substring(0, pos) + text + ta.value.substring(pos);
+    ta.focus(); ta.setSelectionRange(pos + text.length, pos + text.length);
+  }
+  closeInsDlg();
+}
+
+// Resizable divider
+(function(){
+  var div = document.getElementById('divider'), left = div.previousElementSibling, right = div.nextElementSibling;
+  var dragging = false;
+  div.onmousedown = function(e){ dragging = true; e.preventDefault(); };
+  document.onmousemove = function(e){
+    if(!dragging) return;
+    var rect = left.parentElement.getBoundingClientRect();
+    var pct = Math.max(20, Math.min(70, (e.clientX - rect.left) / rect.width * 100));
+    left.style.width = pct + '%';
+    left.style.flex = 'none';
+    right.style.flex = '1';
+  };
+  document.onmouseup = function(){ dragging = false; };
+})();
+
+refreshData();
+setInterval(refreshData, 3000);
+ensureOneCell();
+</script>
+</body>
+</html>
