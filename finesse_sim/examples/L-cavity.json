@@ -1,0 +1,881 @@
+{
+  "name": "L-cavity",
+  "data": {
+    "components": [
+      {
+        "id": "L0",
+        "type": "laser",
+        "x": 40,
+        "y": 205,
+        "w": 40,
+        "h": 30,
+        "angle": 0,
+        "color": "#e74c3c",
+        "params": {
+          "P": 0.06
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "P"
+        ],
+        "hidden": false,
+        "kat": "l"
+      },
+      {
+        "id": "iso_out",
+        "type": "mirror",
+        "x": 125,
+        "y": 190,
+        "w": 30,
+        "h": 60,
+        "angle": 0,
+        "color": "#3498db",
+        "params": {
+          "R": 0,
+          "T": 1,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "both"
+          },
+          {
+            "name": "p2",
+            "dir": "both"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "m"
+      },
+      {
+        "id": "lens1",
+        "type": "lens",
+        "x": 210,
+        "y": 190,
+        "w": 20,
+        "h": 60,
+        "angle": 0,
+        "color": "#9b59b6",
+        "params": {
+          "f": 0.1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "f"
+        ],
+        "hidden": false,
+        "kat": "lens"
+      },
+      {
+        "id": "eo1",
+        "type": "modulator",
+        "x": 285,
+        "y": 195,
+        "w": 30,
+        "h": 50,
+        "angle": 0,
+        "color": "#2ecc71",
+        "params": {
+          "f": 15000000,
+          "midx": 0.1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "f",
+          "midx"
+        ],
+        "hidden": false,
+        "kat": "mod"
+      },
+      {
+        "id": "lens2",
+        "type": "lens",
+        "x": 370,
+        "y": 190,
+        "w": 20,
+        "h": 60,
+        "angle": 0,
+        "color": "#e67e22",
+        "params": {
+          "f": 0.1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "f"
+        ],
+        "hidden": false,
+        "kat": "lens"
+      },
+      {
+        "id": "lens3",
+        "type": "lens",
+        "x": 450,
+        "y": 190,
+        "w": 20,
+        "h": 60,
+        "angle": 0,
+        "color": "#1abc9c",
+        "params": {
+          "f": 0.1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "f"
+        ],
+        "hidden": false,
+        "kat": "lens"
+      },
+      {
+        "id": "bs1",
+        "type": "beamsplitter",
+        "x": 520,
+        "y": 200,
+        "w": 40,
+        "h": 40,
+        "angle": 90,
+        "color": "#f39c12",
+        "params": {
+          "R": 1,
+          "T": 0,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": true,
+        "flipV": true
+      },
+      {
+        "id": "bs2",
+        "type": "beamsplitter",
+        "x": 520,
+        "y": 120,
+        "w": 40,
+        "h": 40,
+        "angle": 180,
+        "color": "#34495e",
+        "params": {
+          "R": 0.9,
+          "T": 0.1,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": true,
+        "flipV": false,
+        "_role": "steering_mirror"
+      },
+      {
+        "id": "bs3",
+        "type": "beamsplitter",
+        "x": 600,
+        "y": 120,
+        "w": 40,
+        "h": 40,
+        "angle": 90,
+        "color": "#95a5a6",
+        "params": {
+          "R": 0.5,
+          "T": 0.5,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": true,
+        "flipV": false,
+        "_role": "beamsplitter"
+      },
+      {
+        "id": "bs4",
+        "type": "beamsplitter",
+        "x": 600,
+        "y": 200,
+        "w": 40,
+        "h": 40,
+        "angle": 0,
+        "color": "#e74c3c",
+        "params": {
+          "R": 0.998,
+          "T": 0.002,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": false,
+        "flipV": false,
+        "_role": "loop_steering_mirror"
+      },
+      {
+        "id": "bs5",
+        "type": "beamsplitter",
+        "x": 680,
+        "y": 200,
+        "w": 40,
+        "h": 40,
+        "angle": 90,
+        "color": "#3498db",
+        "params": {
+          "R": 0.98,
+          "T": 0.02,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": true,
+        "flipV": true,
+        "_role": "combiner",
+        "_loopShape": "bowtie"
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "x": 765,
+        "y": 190,
+        "w": 30,
+        "h": 60,
+        "angle": 0,
+        "color": "#9b59b6",
+        "params": {
+          "R": 0.9971,
+          "T": 0.0029,
+          "phi": 0,
+          "Rc": 1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "both"
+          },
+          {
+            "name": "p2",
+            "dir": "both"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi",
+          "Rc"
+        ],
+        "hidden": false,
+        "kat": "m"
+      },
+      {
+        "id": "bs6",
+        "type": "beamsplitter",
+        "x": 680,
+        "y": 120,
+        "w": 40,
+        "h": 40,
+        "angle": 90,
+        "color": "#2ecc71",
+        "params": {
+          "R": 0.998,
+          "T": 0.002,
+          "phi": 0
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          },
+          {
+            "name": "p2",
+            "dir": "out"
+          },
+          {
+            "name": "p3",
+            "dir": "out"
+          },
+          {
+            "name": "p4",
+            "dir": "out"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi"
+        ],
+        "hidden": false,
+        "kat": "bs",
+        "flipH": true,
+        "flipV": false,
+        "_role": "loop_steering_mirror"
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "x": 685,
+        "y": 270,
+        "w": 30,
+        "h": 60,
+        "angle": 90,
+        "color": "#e67e22",
+        "params": {
+          "R": 0.9971,
+          "T": 0.0029,
+          "phi": "-m1.phi",
+          "Rc": 1
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "both"
+          },
+          {
+            "name": "p2",
+            "dir": "both"
+          }
+        ],
+        "_usedParams": [
+          "R",
+          "T",
+          "phi",
+          "Rc"
+        ],
+        "hidden": false,
+        "kat": "m",
+        "_paramExprs": {
+          "phi": "-m1.phi"
+        }
+      },
+      {
+        "id": "bright",
+        "type": "photodetector",
+        "x": 445,
+        "y": 122.5,
+        "w": 30,
+        "h": 35,
+        "angle": 0,
+        "color": "#1abc9c",
+        "params": {},
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "pd"
+      },
+      {
+        "id": "dark",
+        "type": "photodetector",
+        "x": 525,
+        "y": 122.5,
+        "w": 30,
+        "h": 35,
+        "angle": 0,
+        "color": "#f39c12",
+        "params": {},
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "pd"
+      },
+      {
+        "id": "transmission",
+        "type": "photodetector",
+        "x": 845,
+        "y": 202.5,
+        "w": 30,
+        "h": 35,
+        "angle": 0,
+        "color": "#34495e",
+        "params": {},
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "pd"
+      },
+      {
+        "id": "CCD1",
+        "type": "ccd",
+        "x": 520,
+        "y": 125,
+        "w": 40,
+        "h": 30,
+        "angle": 0,
+        "color": "#95a5a6",
+        "params": {
+          "xlim": 1,
+          "ylim": 1,
+          "npts": 256
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "ccd"
+      },
+      {
+        "id": "beam",
+        "type": "gauss",
+        "x": 445,
+        "y": 125,
+        "w": 30,
+        "h": 30,
+        "angle": 0,
+        "color": "#e74c3c",
+        "params": {
+          "w0": 0.000282,
+          "z": -0.189
+        },
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "gauss"
+      },
+      {
+        "id": "cavity1",
+        "type": "cavity",
+        "x": 685,
+        "y": 370,
+        "w": 30,
+        "h": 20,
+        "angle": 0,
+        "color": "#3498db",
+        "params": {},
+        "ports": [
+          {
+            "name": "p1",
+            "dir": "in"
+          }
+        ],
+        "_usedParams": [],
+        "hidden": true,
+        "kat": "cav"
+      }
+    ],
+    "connections": [
+      {
+        "from": "L0",
+        "fromPort": "p1",
+        "to": "iso_out",
+        "toPort": "p1",
+        "length": 0.2,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_L0_iso_out",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "iso_out",
+        "fromPort": "p2",
+        "to": "lens1",
+        "toPort": "p1",
+        "length": 0.15,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_iso_out_lens1",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "lens1",
+        "fromPort": "p2",
+        "to": "eo1",
+        "toPort": "p1",
+        "length": 0.15,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_lens1_eo1",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "eo1",
+        "fromPort": "p2",
+        "to": "lens2",
+        "toPort": "p1",
+        "length": 0.2,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_eo1_lens2",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "lens2",
+        "fromPort": "p2",
+        "to": "lens3",
+        "toPort": "p1",
+        "length": 0.375,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_lens2_lens3",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "lens3",
+        "fromPort": "p2",
+        "to": "bs1",
+        "toPort": "p1",
+        "length": 0.15,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_lens3_bs1",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs1",
+        "fromPort": "p2",
+        "to": "bs2",
+        "toPort": "p1",
+        "length": 0.05,
+        "angle": 270,
+        "lengthExpr": null,
+        "name": "s_bs1_bs2",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs2",
+        "fromPort": "p2",
+        "to": "bs3",
+        "toPort": "p1",
+        "length": 0.075,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_bs2_bs3",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs3",
+        "fromPort": "p2",
+        "to": "bs4",
+        "toPort": "p1",
+        "length": 0.105,
+        "angle": 270,
+        "lengthExpr": null,
+        "name": "s_bs3_bs4",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs4",
+        "fromPort": "p2",
+        "to": "bs5",
+        "toPort": "p1",
+        "length": 0.125,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_bs4_bs5",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs5",
+        "fromPort": "p3",
+        "to": "m1",
+        "toPort": "p1",
+        "length": 0.102,
+        "angle": 0,
+        "lengthExpr": null,
+        "name": "s_bs5_m1",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs3",
+        "fromPort": "p3",
+        "to": "bs6",
+        "toPort": "p1",
+        "length": 0.13,
+        "angle": 180,
+        "lengthExpr": null,
+        "name": "s_bs3_bs6",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs6",
+        "fromPort": "p2",
+        "to": "bs5",
+        "toPort": "p2",
+        "length": 0.1,
+        "angle": 270,
+        "lengthExpr": null,
+        "name": "s_bs6_bs5",
+        "params": null,
+        "fixed": true,
+        "angleLocked": true
+      },
+      {
+        "from": "bs5",
+        "fromPort": "p4",
+        "to": "m2",
+        "toPort": "p1",
+        "length": 0.101,
+        "angle": 90,
+        "lengthExpr": null,
+        "name": "s_bs5_m2",
+        "params": null,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs2",
+        "fromPort": "p4.o",
+        "to": "bright",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 0,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs3",
+        "fromPort": "p4.o",
+        "to": "dark",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 0,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "m1",
+        "fromPort": "p2.o",
+        "to": "transmission",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 0,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs3",
+        "fromPort": "p4.o",
+        "to": "CCD1",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 0,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "bs2",
+        "fromPort": "p2.o",
+        "to": "beam",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 0,
+        "angleLocked": true,
+        "fixed": true
+      },
+      {
+        "from": "m2",
+        "fromPort": "p1.o",
+        "to": "cavity1",
+        "toPort": "p1",
+        "length": 0.1,
+        "angle": 90,
+        "angleLocked": true,
+        "fixed": true
+      }
+    ],
+    "katLines": [],
+    "vars": [],
+    "preamble": []
+  },
+  "timestamp": 1783588722104
+}
